@@ -3,8 +3,8 @@
 pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract Dex {
     using SafeMath for uint256;
@@ -146,9 +146,9 @@ contract Dex {
             Order memory order = orders[i - 1];
             orders[i - 1] = orders[i];
             orders[i] = order;
-            i = i.sub(1);
+            i--;
         }
-        nextOrderId = nextOrderId.add(1);
+        nextOrderId++;
     }
 
     function createMarketOrder(
@@ -162,7 +162,6 @@ contract Dex {
                 "token balance too low"
             );
         }
-
         Order[] storage orders = orderBook[ticker][uint256(
             side == Side.BUY ? Side.SELL : Side.BUY
         )];
@@ -201,8 +200,8 @@ contract Dex {
             if (side == Side.BUY) {
                 require(
                     traderBalances[msg.sender][DAI] >=
-                        matched * orders[i].price,
-                    "DAI balance too low"
+                        matched.mul(orders[i].price),
+                    "dai balance too low"
                 );
                 traderBalances[msg.sender][ticker] = traderBalances[msg
                     .sender][ticker]
@@ -217,8 +216,8 @@ contract Dex {
                     .trader][DAI]
                     .add(matched.mul(orders[i].price));
             }
-            nextTradeId = nextTradeId.add(1);
-            i = i.add(1);
+            nextTradeId++;
+            i++;
         }
 
         i = 0;
@@ -227,7 +226,7 @@ contract Dex {
                 orders[j] = orders[j + 1];
             }
             orders.pop();
-            i = i.add(1);
+            i++;
         }
     }
 
